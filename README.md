@@ -1,6 +1,6 @@
 # Minus8
 
-A simple game inspired by old J2ME game MAX8 by MobiLeap. With online capabilities.
+A simple game inspired by old J2ME game MAX8 by MobiLeap.(Probably soon will be) with online capabilities.
 
 ## Build Setup
 
