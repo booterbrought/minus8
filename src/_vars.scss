@@ -1,0 +1,47 @@
+$body-bg-color: #080808;
+$main-font: 'ExoTwo',
+sans-serif;
+$clickable-bg-color: unquote('#FFF2');
+$hover-bg-color: unquote('#FFF4');
+$active-bg-color: unquote('#FFF8');
+$shadow-black: .3vmin .3vmin .3vmin black;
+$shadow-white: .3vmin .3vmin .3vmin white;
+
+@font-face {
+  font-family: "ExoTwo";
+  font-weight: 400;
+  src: local("Exo 2"), url("../assets/Exo2.ttf");
+}
+
+body {
+  background-color: $body-bg-color;
+  font: 4vmin $main-font;
+  color: #eee;
+  margin: 0;
+  overflow: hidden;
+}
+
+.clickable {
+  cursor: pointer;
+  text-shadow: $shadow-black;
+  z-index: 999;
+  user-select: none;
+  -moz-user-select: none;
+
+  &:hover:not(:active) {
+    background-color: $hover-bg-color;
+    z-index: 1000;
+    transform: scale(1.15);
+  }
+
+  &:not(:active) {
+    background-color: $clickable-bg-color;
+  }
+
+  &:active {
+    background-color: $active-bg-color;
+    color: black;
+    text-shadow: $shadow-white;
+    transform: scale(1.2);
+  }
+}
