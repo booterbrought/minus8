@@ -73,9 +73,6 @@ export default function (settings) {
       makeTurn(state, cellId) {
         state.turnHistory.push(cellId);
       },
-      incrementPlayerScore(state, turn) {
-        state.players[turn.player].score += turn.value;
-      },
       createNewMap(state) {
         for (let y = 0; y < state.boardSize; y++) {
           Vue.set(state.boardMap, y, []);

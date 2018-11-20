@@ -30,7 +30,7 @@ function randomCellValue(max) {
 }
 
 module.exports = class {
-  constructor(players, boardSize = 8) {
+  constructor(players, boardSize = 6) {
     if (Number.isInteger(boardSize)) {
       this.id = uuid.v4();
       this.date = new Date();

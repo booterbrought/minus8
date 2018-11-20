@@ -20,6 +20,7 @@
     <div v-if=gameFinished class="finished-message">
       <p>Congratulations!</p>
       <p>{{ winner.name }} won!</p>
+      <div class="lobby-button cancel clickable" @click="$router.push('/')">OK</div>
     </div>
   </div>
 </template>
@@ -72,14 +73,15 @@ export default {
 .finished-message {
   position: absolute;
   animation: appear 300ms linear forwards;
-  top: 38.5vmin;
+  padding-bottom: 5vmin;
+  top: 33.5vmin;
   left: 0;
   right: 0;
   font-size: 5vmin;
   color: white;
   z-index: 1001;
   background-color: #000a;
-  line-height: 150%;
+  line-height: 6vmin;
 }
 
 @keyframes appear {
