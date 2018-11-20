@@ -2,6 +2,8 @@
 
 A simple game inspired by old J2ME game MAX8 by MobiLeap. With online capabilities.
 
+![screenshot](screenshot.png)
+
 ## Build Setup
 
 ```bash
