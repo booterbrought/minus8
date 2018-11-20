@@ -30,7 +30,7 @@ export default {
       return this.player.score;
     },
     isActive() {
-      return this.currentPlayer === this.axis;
+      return this.currentPlayer.axis === this.axis;
     },
 
     ...mapState(["players"]),

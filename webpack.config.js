@@ -1,13 +1,30 @@
 var path = require("path");
 var webpack = require("webpack");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+var API_URL = {
+  production: JSON.stringify('wss://booterbro.tk/server'),
+  development: JSON.stringify('ws://localhost/server')
+}
+var environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 
 module.exports = {
-  entry: "./src/minus8.js",
+  entry: {
+    main: "./src/minus8.js"
+  },
   output: {
-    path: path.resolve(__dirname, "./build/dist"),
-    publicPath: "dist/",
+    path: path.resolve(__dirname, "./build/www"),
+    // publicPath: "dist/",
     filename: "build.js"
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Minus8',
+    }),
+    new webpack.DefinePlugin({
+      'API_URL': API_URL[environment]
+    })
+  ],
   module: {
     rules: [{
         test: /\.scss$/,
@@ -44,7 +61,15 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     noInfo: true,
-    overlay: true
+    overlay: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    },
+    proxy: {
+      "/server": {
+        target: "http://localhost"
+      },
+    }
   },
   performance: {
     hints: false
