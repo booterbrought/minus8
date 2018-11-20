@@ -44,14 +44,13 @@ export default {
       "boardMap",
       "cellsById",
       "turnHistory",
-      "firstPlayer",
       "firstCell",
       "players",
       "playerLeft"
     ]),
     ...mapGetters([
       "activeCells",
-      "activeRow",
+      "firstPlayer",
       "gameFinished",
       "gameInProgress",
       "secondPlayer",
@@ -74,17 +73,17 @@ export default {
       }
     },
     initHotSeat() {
-      this.setGameMode({ mode: "hotseat" });
+      this.setGameMode({ mode: "hotseat", playerId: this.settings.playerId });
       this.setBoardSize(this.settings.boardSize);
       this.setPlayer({
         axis: "x",
-        type: "human",
+        control: "user",
         name: this.settings.nickname,
         score: 0
       });
       this.setPlayer({
         axis: "y",
-        type: "human",
+        control: "user",
         name: this.settings.nickname2,
         score: 0
       });
@@ -93,13 +92,21 @@ export default {
       }
     },
     initOnline(id) {
-      this.setGameMode({ mode: "online", id });
+      this.setGameMode({
+        mode: "online",
+        id,
+        playerId: this.settings.playerId,
+        playerSecret: this.settings.playerSecret
+      });
     },
-    ...mapMutations(["setGameMode", "setPlayer", "setBoardSize"]),
+    ...mapMutations(["setGameMode", "setPlayer", "setBoardSize", "disconnect"]),
     ...mapActions(["createNewMap", "restartGame", "makeTurn"])
   },
   mounted() {
     this.initGame();
+  },
+  beforeDestroy() {
+    this.disconnect();
   }
 };
 </script>

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "Vuex";
-import onlineActions from "./GameOnlineActions.js";
+import onlineActionsController from "./GameOnlineActions.js";
 Vue.use(Vuex);
 
 function otherAxis(axis) {
@@ -18,18 +18,20 @@ function randomCellValue(maxVal) {
   return random(maxVal * 2) - maxVal + 1 || -maxVal;
 }
 
-export default function () {
+export default function (settings) {
   return new Vuex.Store({
     state() {
       return {
         boardSize: 8,
         gameId: "",
+        playerId: "",
+        playerSecret: "",
         gameMode: "",
         gameStarted: false,
         boardMap: [],
         cellsById: {},
         turnHistory: [],
-        firstPlayer: "",
+        firstPlayerId: "",
         firstCell: {},
         players: {
           x: {
@@ -43,12 +45,14 @@ export default function () {
       };
     },
     actions: {
-      makeTurn(context, cellId) {
-        context.commit("incrementPlayerScore", {
-          player: context.getters.currentPlayer,
-          value: context.state.cellsById[cellId].value
-        });
-        context.commit("makeTurn", cellId);
+      makeTurn(context, payload) {
+        if (context.state.gameMode !== "online") {
+          context.commit("incrementPlayerScore", {
+            player: context.getters.currentPlayer.axis,
+            value: context.state.cellsById[payload.cellId].value
+          });
+          context.commit("makeTurn", payload.cellId);
+        }
       },
       createNewMap(context) {
         context.commit("createNewMap");
@@ -65,7 +69,10 @@ export default function () {
         state.turnHistory = [];
         state.players.x.score = 0;
         state.players.y.score = 0;
-        state.firstPlayer = state.players[random(["x", "y"])];
+        state.firstPlayerId = random(["x", "y"]);
+      },
+      disconnect(state) {
+
       },
       makeTurn(state, cellId) {
         state.turnHistory.push(cellId);
@@ -90,7 +97,9 @@ export default function () {
       },
       setGameMode(state, payload) {
         state.gameMode = payload.mode;
-        if (payload.id) state.gameId = payload.id;
+        state.gameId = payload.id;
+        state.playerId = payload.playerId;
+        state.playerSecret = payload.playerSecret;
       },
       setPlayer(state, player) {
         state.players[player.axis] = player;
@@ -100,27 +109,15 @@ export default function () {
       }
     },
     getters: {
-      activeRow(state, getters) {
-        return (
-          state.gameStarted &&
-          (getters.currentPlayer === "y" ?
-            getters.lastCellId
-            .split("")
-            .slice(0, 2)
-            .join("") :
-            getters.lastCellId
-            .split("")
-            .slice(2)
-            .join(""))
-        );
-      },
       activeCells(state, getters) {
+        let row = otherAxis(getters.currentPlayer.axis);
+        let rowId = row + state.cellsById[getters.lastCellId][row];
         return Object.keys(state.cellsById)
           .filter(
             id =>
             state.gameStarted &&
-            id.indexOf(getters.activeRow) > -1 &&
-            !state.turnHistory.some(turn => turn === id)
+            id.indexOf(rowId) > -1 &&
+            state.turnHistory.indexOf(id) < 0
           )
           .map(id => state.cellsById[id]);
       },
@@ -133,14 +130,17 @@ export default function () {
           state.playerLeft
         );
       },
+      firstPlayer(state) {
+        return state.players[state.firstPlayerId];
+      },
       secondPlayer(state, getters) {
-        return state.players[otherAxis(state.firstPlayer.axis)];
+        return state.players[otherAxis(state.firstPlayerId)];
       },
       currentPlayer(state, getters) {
         return state.gameStarted ?
           state.turnHistory.length % 2 ?
-          getters.secondPlayer.axis :
-          state.firstPlayer.axis :
+          getters.secondPlayer :
+          getters.firstPlayer :
           "";
       },
       lastCellId(state, getters) {
@@ -150,12 +150,12 @@ export default function () {
       },
       winner(state, getters) {
         return getters.gameFinished ?
-          state.firstPlayer.score > getters.secondPlayer.score ?
-          state.firstPlayer :
+          getters.firstPlayer.score > getters.secondPlayer.score ?
+          getters.firstPlayer :
           getters.secondPlayer :
           "";
       }
     },
-    plugins: [onlineActions]
+    plugins: [onlineActionsController]
   });
 }

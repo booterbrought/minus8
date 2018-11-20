@@ -5,7 +5,6 @@ import Menu from "./menu/Menu";
 import Game from "./game/Game";
 import GameOnlineLobby from "./game/GameOnlineLobby";
 import uuid from "uuid";
-import md5 from "md5";
 
 Vue.use(VueRouter);
 Vue.use(VueSession, {
@@ -34,8 +33,13 @@ let router = new VueRouter({
   ]
 });
 
+let div = document.createElement("div");
+div.id = "app";
+document.body.append(div);
+
 new Vue({
   el: "#app",
+  template: "<router-view></router-view>",
   router,
   created() {
     if (!this.$session.exists()) {
@@ -43,11 +47,10 @@ new Vue({
       this.$session.set("nickname", "Анон Х");
       this.$session.set("nickname2", "Anon Y");
       this.$session.set("boardSize", 8);
-      let uid = uuid.v4();
-      let secret = uuid.v4();
-      this.$session.set("secret", secret);
-      this.$session.set("uid", uid);
-      this.$session.set("authToken", md5(uid + secret));
+      let playerId = uuid.v4();
+      let playerSecret = uuid.v4();
+      this.$session.set("playerId", playerId);
+      this.$session.set("playerSecret", playerSecret);
     }
   }
 });

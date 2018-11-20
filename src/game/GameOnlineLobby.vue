@@ -2,9 +2,9 @@
   <div class="lobby">
     <p class="lobby-state">{{ caption }}</p>
     <p class="opp-name">{{ oppName }}</p>
-    <div class="actions" v-if="currentState===3">
-      <span class="lobby-button accept clickable" @click=accept>Accept</span>
-      <span class="lobby-button decline" @click=decline>Decline</span>
+    <div class="actions" v-if=oppFound>
+      <span class="lobby-button" :class="{ accept: !accepted , clickable: !accepted }" @click=accept>{{ acceptedCaption }}</span>
+      <span class="lobby-button decline clickable" @click=decline>Decline</span>
     </div>
     <div class="lobby-button cancel clickable" @click=cancel>Cancel</div>
   </div>
@@ -14,8 +14,9 @@
 let waitingStates = {
   CONNECTING: 1,
   WAITING: 2,
-  OPP_FOUND: 3,
-  GAME_STARTED: 4,
+  OPP_FOUND: 4,
+  ACCEPTED: 5,
+  GAME_CREATED: 3,
   CANCELED: 100
 };
 
@@ -31,18 +32,18 @@ export default {
   },
   methods: {
     accept() {
+      this.currentState = waitingStates.ACCEPTED;
       this.socket.sendJSON({ event: "accept" });
     },
     decline() {
       this.socket.sendJSON({ event: "decline" });
     },
     cancel() {
-      this.currentState = waitingStates.CANCELED;
       this.$router.push("/");
     },
     connect() {
       this.currentState = waitingStates.CONNECTING;
-      let socket = new WebSocket("ws://localhost:8081/server");
+      let socket = new WebSocket(API_URL);
       socket.sendJSON = data => {
         socket.send(JSON.stringify(data));
       };
@@ -51,8 +52,8 @@ export default {
       socket.onopen = () => {
         socket.sendJSON({
           event: "lobby-enter",
-          uid: this.settings.uid,
-          authToken: this.settings.authToken,
+          playerId: this.settings.playerId,
+          playerSecret: this.settings.playerSecret,
           playerName: this.settings.nickname
         });
       };
@@ -63,15 +64,19 @@ export default {
         switch (data.event) {
           case "in-lobby":
             this.currentState = waitingStates.WAITING;
+            this.oppName = "";
             break;
+
           case "opponent-found":
             this.currentState = waitingStates.OPP_FOUND;
             this.oppName = data.oppName;
             break;
-          case "game-started":
-            this.currentState = waitingStates.GAME_STARTED;
+
+          case "game-created":
+            this.currentState = waitingStates.GAME_CREATED;
             this.$router.push("/game/online/" + data.gameId);
             break;
+
           default:
             break;
         }
@@ -84,28 +89,43 @@ export default {
       socket.onclose = code => {
         if (
           this.currentState != waitingStates.CANCELED &&
-          this.currentState != waitingStates.GAME_STARTED
+          this.currentState != waitingStates.GAME_CREATED
         )
           this.connect();
       };
     }
   },
   computed: {
+    oppFound() {
+      return (
+        this.currentState === waitingStates.OPP_FOUND ||
+        this.currentState === waitingStates.ACCEPTED
+      );
+    },
+    accepted() {
+      return this.currentState === waitingStates.ACCEPTED;
+    },
     caption() {
       switch (this.currentState) {
         case waitingStates.CONNECTING:
           return "Connecting...";
         case waitingStates.OPP_FOUND:
           return "Opponent found!";
+        case waitingStates.ACCEPTED:
+          return "Waiting...";
         default:
           return "Waiting for opponent...";
       }
+    },
+    acceptedCaption() {
+      return this.accepted ? "Accepted" : "Accept";
     }
   },
   created() {
     this.connect();
   },
   beforeDestroy() {
+    this.currentState = waitingStates.CANCELED;
     this.socket.close();
   }
 };
@@ -121,23 +141,18 @@ export default {
 
 .opp-name {
   font-size: 5vmin;
-  margin: 1vmin;
+  margin: 2.5vmin 0 4vmin;
 }
 
 .lobby-state {
   font-size: 3vmin;
-  margin: 1vmin;
+  margin: 3vmin 0 0vmin;
 }
 
 .actions {
   width: 45vmin;
   display: flex;
   margin: 2vmin auto;
-
-  .accept,
-  .decline {
-    margin: 0 1vmin;
-  }
 }
 
 .lobby-button {
@@ -146,11 +161,16 @@ export default {
   margin: auto;
   border-radius: 1vmin;
 
+  &.accept,
+  &.decline {
+    margin: 0 1vmin;
+  }
+
   &.accept {
-    background: forestgreen;
+    background: forestgreen !important;
   }
   &.decline {
-    background: firebrick;
+    background: firebrick !important;
   }
 }
 </style>
