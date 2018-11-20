@@ -26,10 +26,6 @@ export default _store => {
       let data = JSON.parse(msg.data);
       switch (data.event) {
         case "new-turn":
-          store.commit("incrementPlayerScore", {
-            player: store.getters.currentPlayer.axis,
-            value: store.state.cellsById[data.cellId].value
-          });
           store.commit("makeTurn", data.cellId);
           break;
         default:

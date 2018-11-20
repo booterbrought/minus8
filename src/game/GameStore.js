@@ -47,10 +47,6 @@ export default function (settings) {
     actions: {
       makeTurn(context, payload) {
         if (context.state.gameMode !== "online") {
-          context.commit("incrementPlayerScore", {
-            player: context.getters.currentPlayer.axis,
-            value: context.state.cellsById[payload.cellId].value
-          });
           context.commit("makeTurn", payload.cellId);
         }
       },

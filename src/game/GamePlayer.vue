@@ -4,7 +4,7 @@
      'player-x': (axis === 'x'),
      'player-y': (axis === 'y')
     }">
-    <div class="score" >{{ player.score }}</div>{{ player.name }}
+    <div class="score" >{{ score }}</div>{{ name }}
   </div>
 </template>
 
@@ -27,13 +27,16 @@ export default {
       return this.player.name;
     },
     score() {
-      return this.player.score;
+      let evenness = this.axis === this.firstPlayerId ? 1 : 0;
+      return this.turnHistory.reduce((sum, turn, i) => {
+        return sum + this.cellsById[turn].value * (i % 2 != evenness);
+      }, 0);
     },
     isActive() {
       return this.currentPlayer.axis === this.axis;
     },
 
-    ...mapState(["players"]),
+    ...mapState(["players", "turnHistory", "cellsById", "firstPlayerId"]),
     ...mapGetters(["currentPlayer"])
   }
 };
