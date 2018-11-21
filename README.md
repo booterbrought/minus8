@@ -1,6 +1,7 @@
 # Minus8
 
 A simple game inspired by old J2ME game MAX8 by MobiLeap. With online capabilities.
+Made with vue, express, websockets.
 
 ![screenshot](screenshot.png)
 
