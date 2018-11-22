@@ -10,7 +10,7 @@ class Game {
     this.firstPlayer = random(["x", "y"]);
     this.firstCell = random(random(this.board)).id;
     this.turnHistory = [];
-    this.sockets = [];
+    this.$sockets = [];
     this.players = {
       x: {
         axis: "x",
@@ -26,7 +26,7 @@ class Game {
   newTurn(cellId, secret) {
     if (this.checkTurn(cellId, secret)) {
       this.turnHistory.push(cellId);
-      this.sockets.forEach(socket => socket.$sendJSON({
+      this.$sockets.forEach(socket => socket.$sendJSON({
         event: "new-turn",
         cellId
       }));
@@ -36,10 +36,10 @@ class Game {
   }
 
   addSocket(socket) {
-    if (!this.sockets.includes(socket)) {
-      this.sockets.push(socket);
+    if (!this.$sockets.includes(socket)) {
+      this.$sockets.push(socket);
       socket.on("close", () => {
-        this.sockets.splice(this.sockets.indexOf(socket), 1);
+        this.$sockets.splice(this.$sockets.indexOf(socket), 1);
       });
     }
   }

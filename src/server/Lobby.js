@@ -98,17 +98,17 @@ class Player {
         opp.$ws.emit("opp-decline");
       };
       let oppDeclineListener = () => {
-        ws.off("close", cancelListener);
+        ws.removeListener("close", cancelListener);
         lobby.enterLobby(this);
       };
       let declineListener = () => {
-        ws.off("close", cancelListener);
+        ws.removeListener("close", cancelListener);
         this.$declinedOpps.push(opp.playerId);
         lobby.enterLobby(this);
         opp.$ws.emit("opp-decline");
       };
       let acceptListener = () => {
-        ws.off("close", cancelListener);
+        ws.removeListener("close", cancelListener);
         if (opp.$pairAccepted) {
           lobby.gameServer.createGame(opp, this);
         } else {
