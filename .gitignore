@@ -1,2 +1,5 @@
+src\server\index-vendor.js
 node_modules
 build
+
+/src/server/index-vendor.js

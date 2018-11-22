@@ -21,6 +21,13 @@ body {
   overflow: hidden;
 }
 
+.game-button {
+  width: 30vmin;
+  padding: 1vmin;
+  margin: auto;
+  border-radius: 1vmin;
+}
+
 .clickable {
   cursor: pointer;
   text-shadow: $shadow-black;

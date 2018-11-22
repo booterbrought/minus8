@@ -3,10 +3,10 @@
     <p class="lobby-state">{{ caption }}</p>
     <p class="opp-name">{{ oppName }}</p>
     <div class="actions" v-if=oppFound>
-      <span class="lobby-button" :class="{ accept: !accepted , clickable: !accepted }" @click=accept>{{ acceptedCaption }}</span>
-      <span class="lobby-button decline clickable" @click=decline>Decline</span>
+      <span class="game-button" :class="{ accept: !accepted , clickable: !accepted }" @click=accept>{{ acceptedCaption }}</span>
+      <span class="game-button decline clickable" @click=decline>Decline</span>
     </div>
-    <div class="lobby-button cancel clickable" @click=cancel>Cancel</div>
+    <div class="game-button cancel clickable" @click=cancel>Cancel</div>
   </div>
 </template>
 
@@ -43,7 +43,7 @@ export default {
     },
     connect() {
       this.currentState = waitingStates.CONNECTING;
-      let socket = new WebSocket(API_URL);
+      let socket = new WebSocket(API_HOST + "/lobby");
       socket.sendJSON = data => {
         socket.send(JSON.stringify(data));
       };
@@ -155,12 +155,7 @@ export default {
   margin: 2vmin auto;
 }
 
-.lobby-button {
-  width: 30vmin;
-  padding: 1vmin;
-  margin: auto;
-  border-radius: 1vmin;
-
+.game-button {
   &.accept,
   &.decline {
     margin: 0 1vmin;

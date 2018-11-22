@@ -3,6 +3,7 @@
     <div class="menu-title">{{ title }}</div>
     <menu-item v-for="item in items" :key=item.title :item=item>
     </menu-item>
+    <div class="menu-footer">by <a href="https://vk.com/keshka" class="menu-link">booterbrought</a></div>
   </div>
 </template>
 <script>
@@ -41,9 +42,9 @@ export default {
         {
           title: "Play",
           items: [
-            { title: "Hotseat", link: "/game/hotseat" },
-            { title: "Online (alpha)", link: "/lobby" },
-            { title: "vs AI (not yet)", link: "/game/vs-ai" }
+            { title: "Hotseat", button: "/game/hotseat" },
+            { title: "Online", button: "/lobby" },
+            { title: "vs AI (not yet)", button: "/vs-ai" }
           ]
         },
         {
@@ -68,8 +69,11 @@ export default {
         },
         {
           items: [
-            { title: "About (not yet)", link: "/about" },
-            { title: "Rules (not yet)", link: "/rules" }
+            {
+              title: "About & Rules",
+              link: "https://github.com/booterbrought/minus8"
+            }
+            // { title: "Rules", link: "/rules" }
           ]
         }
       ],
@@ -93,5 +97,20 @@ export default {
 .menu-title {
   font-size: 6vmin;
   text-align: center;
+}
+
+.menu-footer {
+  text-align: right;
+  font-size: 2.4vmin;
+}
+
+.menu-link:link {
+  color: #bbb;
+}
+.menu-link:visited {
+  color: #bbb;
+}
+.menu-link:hover {
+  color: #eee;
 }
 </style>

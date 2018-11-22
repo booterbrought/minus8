@@ -5,13 +5,12 @@ export default _store => {
   let store = _store;
 
   function connectToServer() {
-    console.log("Connecting...");
     socket = initWs(socket, store);
     fetchGameData(store.state, store.state.gameId);
   }
 
   function initWs(socket, store) {
-    socket = new WebSocket(API_URL);
+    socket = new WebSocket(API_HOST + "/server");
     socket.sendJSON = data => {
       socket.send(JSON.stringify(data));
     };
@@ -19,17 +18,12 @@ export default _store => {
       socket.sendJSON({
         event: "game-enter",
         gameId: store.state.gameId,
-        playerId: store.state.playerId
       });
     };
     socket.onmessage = msg => {
       let data = JSON.parse(msg.data);
       switch (data.event) {
         case "new-turn":
-          store.commit("incrementPlayerScore", {
-            player: store.getters.currentPlayer.axis,
-            value: store.state.cellsById[data.cellId].value
-          });
           store.commit("makeTurn", data.cellId);
           break;
         default:
@@ -41,10 +35,7 @@ export default _store => {
 
   function fetchGameData(state, id) {
     axios
-      .post(`/server/game`, {
-        playerId: state.playerId,
-        gameId: id
-      })
+      .get(`/server/game/${state.gameId}`)
       .then(res => {
         if (!res.data.error) {
           let game = res.data;
@@ -93,7 +84,7 @@ export default _store => {
         }
         break;
       case "disconnect":
-        socket.close();
+        if (state.gameMode === "online") socket.close();
         break;
       default:
         break;
@@ -107,7 +98,6 @@ export default _store => {
             socket.sendJSON({
               event: "new-turn",
               gameId: state.gameId,
-              playerId: state.playerId,
               cellId: action.payload,
               playerSecret: state.playerSecret
             });

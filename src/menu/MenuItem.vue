@@ -1,8 +1,9 @@
 <template>
-  <div class="menu-item" :class="{ clickable: item.link, submenu:item.items }" @click=go>
+  <div class="menu-item" :class="{ clickable: item.button, submenu:item.items }" @click=navigate>
     <div v-if=item.title class="menu-item-head">
-      <div v-if=item.title class="menu-item-title">{{ item.title }}</div>
+      <div v-if="item.title && !item.link" class="menu-item-title">{{ item.title }}</div>
       <input v-if=item.input v-model.lazy="item.settings[item.input]" class="menu-item-input">
+      <a v-if=item.link :href=item.link class="menu-link">{{ item.title }}</a>
     </div>
     <div v-if=item.items class="menu-items">
       <menu-item v-for="i in item.items" :key=i.title :item=i />
@@ -16,15 +17,15 @@ export default {
     item: {
       title: { type: String, required: true },
       items: Array,
-      link: String
+      button: String
     }
   },
   data() {
     return {};
   },
   methods: {
-    go() {
-      this.$router.push(this.item.link);
+    navigate() {
+      this.$router.push(this.item.button);
     }
   }
 };

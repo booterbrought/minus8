@@ -18,7 +18,7 @@ function randomCellValue(maxVal) {
   return random(maxVal * 2) - maxVal + 1 || -maxVal;
 }
 
-export default function (settings) {
+export default function(settings) {
   return new Vuex.Store({
     state() {
       return {
@@ -47,40 +47,30 @@ export default function (settings) {
     actions: {
       makeTurn(context, payload) {
         if (context.state.gameMode !== "online") {
-          context.commit("incrementPlayerScore", {
-            player: context.getters.currentPlayer.axis,
-            value: context.state.cellsById[payload.cellId].value
-          });
-          context.commit("makeTurn", payload.cellId);
+          context.commit("makeTurn", payload);
         }
       },
       createNewMap(context) {
         context.commit("createNewMap");
       },
       restartGame(context) {
-        if (context.state.gameStarted) context.commit("createNewMap");
+        context.commit("createNewMap");
         context.commit("restart");
       }
     },
     mutations: {
       restart(state) {
         state.gameStarted = true;
-        state.firstCell = random(random(state.boardMap));
-        state.turnHistory = [];
-        state.players.x.score = 0;
-        state.players.y.score = 0;
-        state.firstPlayerId = random(["x", "y"]);
+        Vue.set(state, "firstCell", random(random(state.boardMap)));
+        Vue.set(state, "turnHistory", []);
+        Vue.set(state, "firstPlayerId", random(["x", "y"]));
       },
-      disconnect(state) {
-
-      },
+      disconnect(state) {},
       makeTurn(state, cellId) {
         state.turnHistory.push(cellId);
       },
-      incrementPlayerScore(state, turn) {
-        state.players[turn.player].score += turn.value;
-      },
       createNewMap(state) {
+        Vue.set(state, "boardMap", []);
         for (let y = 0; y < state.boardSize; y++) {
           Vue.set(state.boardMap, y, []);
           for (let x = 0; x < state.boardSize; x++) {
@@ -109,15 +99,27 @@ export default function (settings) {
       }
     },
     getters: {
+      scorex(state, getters) {
+        let evenness = state.firstPlayerId === "x" ? 1 : 0;
+        return state.turnHistory.reduce((sum, turn, i) => {
+          return sum + state.cellsById[turn].value * (i % 2 != evenness);
+        }, 0);
+      },
+      scorey(state, getters) {
+        let evenness = state.firstPlayerId === "y" ? 1 : 0;
+        return state.turnHistory.reduce((sum, turn, i) => {
+          return sum + state.cellsById[turn].value * (i % 2 != evenness);
+        }, 0);
+      },
       activeCells(state, getters) {
-        let row = otherAxis(getters.currentPlayer.axis);
-        let rowId = row + state.cellsById[getters.lastCellId][row];
+        let rowAxis = otherAxis(getters.currentPlayer.axis);
+        let rowIndex = state.cellsById[getters.lastCellId][rowAxis];
         return Object.keys(state.cellsById)
           .filter(
             id =>
-            state.gameStarted &&
-            id.indexOf(rowId) > -1 &&
-            state.turnHistory.indexOf(id) < 0
+              state.gameStarted &&
+              state.cellsById[id][rowAxis] === rowIndex &&
+              state.turnHistory.indexOf(id) < 0
           )
           .map(id => state.cellsById[id]);
       },
@@ -137,23 +139,27 @@ export default function (settings) {
         return state.players[otherAxis(state.firstPlayerId)];
       },
       currentPlayer(state, getters) {
-        return state.gameStarted ?
-          state.turnHistory.length % 2 ?
-          getters.secondPlayer :
-          getters.firstPlayer :
-          "";
+        return state.gameStarted
+          ? state.turnHistory.length % 2
+            ? getters.secondPlayer
+            : getters.firstPlayer
+          : "";
       },
       lastCellId(state, getters) {
-        return state.turnHistory.length ?
-          state.turnHistory[state.turnHistory.length - 1] :
-          state.firstCell.id;
+        return state.turnHistory.length
+          ? state.turnHistory[state.turnHistory.length - 1]
+          : state.firstCell.id;
       },
       winner(state, getters) {
-        return getters.gameFinished ?
-          getters.firstPlayer.score > getters.secondPlayer.score ?
-          getters.firstPlayer :
-          getters.secondPlayer :
-          "";
+        if (getters.gameFinished) {
+          if (getters.scorex > getters.scorey) {
+            return state.players.x;
+          } else if (getters.scorey > getters.scorex) {
+            return state.players.y;
+          } else {
+            return getters.secondPlayer;
+          }
+        }
       }
     },
     plugins: [onlineActionsController]

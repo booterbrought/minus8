@@ -78,18 +78,14 @@ export default {
       this.setPlayer({
         axis: "x",
         control: "user",
-        name: this.settings.nickname,
-        score: 0
+        playerName: this.settings.nickname
       });
       this.setPlayer({
         axis: "y",
         control: "user",
-        name: this.settings.nickname2,
-        score: 0
+        playerName: this.settings.nickname2
       });
-      if (this.boardMap.length === 0) {
-        this.createNewMap();
-      }
+      this.restartGame();
     },
     initOnline(id) {
       this.setGameMode({

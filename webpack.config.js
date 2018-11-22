@@ -2,9 +2,9 @@ var path = require("path");
 var webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-var API_URL = {
-  production: JSON.stringify('wss://booterbro.tk/server'),
-  development: JSON.stringify('ws://localhost/server')
+var API_HOST = {
+  production: JSON.stringify('wss://booterbro.tk'),
+  development: JSON.stringify('ws://localhost:8081')
 }
 var environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 
@@ -22,7 +22,7 @@ module.exports = {
       title: 'Minus8',
     }),
     new webpack.DefinePlugin({
-      'API_URL': API_URL[environment]
+      'API_HOST': API_HOST[environment]
     })
   ],
   module: {
@@ -67,7 +67,7 @@ module.exports = {
     },
     proxy: {
       "/server": {
-        target: "http://localhost"
+        target: "http://localhost:8081"
       },
     }
   },
