@@ -10,11 +10,14 @@ let {
 let app = express();
 let expressws = require('express-ws');
 
+let port = 8081;
+//let ports = 443;
+
 app.use(express.static(`${__dirname}/www`));
 let server = http.createServer(app);
 expressws(app, server);
-server.listen(80);
-console.log(`listening on 80!`);
+server.listen(port);
+console.log(`listening on ${port}!`);
 
 // let fs = require("fs");
 // let servers = https.createServer({
@@ -23,8 +26,8 @@ console.log(`listening on 80!`);
 // }, app);
 
 // expressws(app, servers);
-// servers.listen(443);
-// console.log(`listening on 443!`);
+// server.listen(ports);
+// console.log(`listening on ${ports}!`);
 
 let gameServer = new GameServer(app);
 let lobbyServer = new LobbyServer(app, gameServer);

@@ -21,10 +21,10 @@ Made with vue.js (front), express.js (back), websockets (in between).
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
+# serve client with hot reload at localhost:8080
 npm run dev
 
-# server on localhost:80
+# server on localhost:8081
 npm run dev-server
 
 # build for production with minification
