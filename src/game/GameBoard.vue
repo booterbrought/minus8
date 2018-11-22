@@ -19,8 +19,8 @@
     </div>
     <div v-if=gameFinished class="finished-message">
       <p>Congratulations!</p>
-      <p>{{ winner.name }} won!</p>
-      <div class="lobby-button cancel clickable" @click="$router.push('/')">OK</div>
+      <p>{{ winner.playerName }} won!</p>
+      <div class="game-button cancel clickable" @click="$router.push('/')">OK</div>
     </div>
   </div>
 </template>
@@ -52,6 +52,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../_vars.scss";
+
 .game-board {
   display: flex;
   flex-direction: column;

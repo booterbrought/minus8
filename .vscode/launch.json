@@ -18,7 +18,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch game server",
-      "program": "${workspaceFolder}/src/server/index.js"
+      "program": "${workspaceFolder}/src/server/server.js"
     }
   ]
 }

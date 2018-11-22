@@ -4,7 +4,7 @@
      'player-x': (axis === 'x'),
      'player-y': (axis === 'y')
     }">
-    <div class="score" >{{ score }}</div>{{ name }}
+    <div class="score" >{{ score }}</div>{{ playerName }}
   </div>
 </template>
 
@@ -23,8 +23,8 @@ export default {
     player() {
       return this.players[this.axis];
     },
-    name() {
-      return this.player.name;
+    playerName() {
+      return this.player.playerName;
     },
     score() {
       let evenness = this.axis === this.firstPlayerId ? 1 : 0;

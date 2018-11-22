@@ -1,97 +1,53 @@
+let events = require("events");
 let uuid = require("uuid");
 
-function random(val) {
-  if (Number.isInteger(val)) {
-    return Math.floor(Math.random() * val);
-  }
-  return val[random(val.length)];
-}
-
-function randomBoardMap(boardSize, cellsById) {
-  let map = [];
-  for (let y = 0; y < boardSize; y++) {
-    map.push([]);
-    for (let x = 0; x < boardSize; x++) {
-      let cell = {
-        id: "x" + x + "y" + y,
-        x,
-        y,
-        value: randomCellValue(boardSize)
-      };
-      map[y].push(cell);
-      cellsById[cell.id] = cell;
-    }
-  }
-  return map;
-}
-
-function randomCellValue(max) {
-  return random(max * 2) - max + 1 || -max;
-}
-
-module.exports = class {
-  constructor(players, boardSize = 6) {
-    if (Number.isInteger(boardSize)) {
-      this.id = uuid.v4();
-      this.date = new Date();
-      this.cellsById = {};
-      this.board = randomBoardMap(boardSize, this.cellsById);
-      this.firstPlayer = random(["x", "y"]);
-      this.firstCell = random(random(this.board)).id;
-      this.turnHistory = [];
-      this.players = {
-        x: {
-          axis: "x",
-          playerId: players[0].playerId,
-          name: players[0].name,
-          $playerSecret: players[0].$playerSecret,
-          $socket: "",
-          score: 0
-        },
-        y: {
-          axis: "y",
-          playerId: players[1].playerId,
-          name: players[1].name,
-          $playerSecret: players[1].$playerSecret,
-          $socket: "",
-          score: 0
-        }
-      };
-    }
+class Game {
+  constructor(p1, p2, boardSize = 8) {
+    this.id = uuid.v4();
+    this.date = new Date();
+    this.cellsById = {};
+    this.board = randomBoardMap(boardSize, this.cellsById);
+    this.firstPlayer = random(["x", "y"]);
+    this.firstCell = random(random(this.board)).id;
+    this.turnHistory = [];
+    this.sockets = [];
+    this.players = {
+      x: {
+        axis: "x",
+        ...p1
+      },
+      y: {
+        axis: "y",
+        ...p2
+      }
+    };
   }
 
   newTurn(cellId, secret) {
     if (this.checkTurn(cellId, secret)) {
       this.turnHistory.push(cellId);
-      let msg = {
+      this.sockets.forEach(socket => socket.$sendJSON({
         event: "new-turn",
-        cellId: cellId
-      };
-
-      if (this.players.x.$socket) this.players.x.$socket.$sendJSON(msg);
-      if (this.players.y.$socket) this.players.y.$socket.$sendJSON(msg);
+        cellId
+      }));
     } else {
-      console.log(`Wrong turn!`, cellId);
+      // console.log(`Wrong turn!`, cellId);
     }
   }
 
-  setPlayerSocket(data, socket) {
-    ["x", "y"].forEach(axis => {
-      if (this.players[axis].playerId === data.playerId) {
-        this.players[axis].$socket = socket;
-        console.log(
-          `${this.players[axis].name} (${
-            this.players[axis].playerId
-          }) entered game.`
-        );
-      }
-    });
+  addSocket(socket) {
+    if (!this.sockets.includes(socket)) {
+      this.sockets.push(socket);
+      socket.on("close", () => {
+        this.sockets.splice(this.sockets.indexOf(socket), 1);
+      });
+    }
   }
 
   checkTurn(id, secret) {
     return (
       secret === this.players[this.currentPlayer].$playerSecret &&
-      this.turnHistory.indexOf(id) < 0 &&
+      !this.turnHistory.includes(id) &&
       this.lastCell[this.otherPlayer] === this.cellsById[id][this.otherPlayer]
     );
   }
@@ -121,3 +77,34 @@ module.exports = class {
     return this.firstPlayer === "x" ? "y" : "x";
   }
 };
+
+module.exports = Game;
+
+function random(val) {
+  if (Number.isInteger(val)) {
+    return Math.floor(Math.random() * val);
+  }
+  return val[random(val.length)];
+}
+
+function randomBoardMap(boardSize, cellsById) {
+  let map = [];
+  for (let y = 0; y < boardSize; y++) {
+    map.push([]);
+    for (let x = 0; x < boardSize; x++) {
+      let cell = {
+        id: "x" + x + "y" + y,
+        x,
+        y,
+        value: randomCellValue(boardSize)
+      };
+      map[y].push(cell);
+      cellsById[cell.id] = cell;
+    }
+  }
+  return map;
+}
+
+function randomCellValue(max) {
+  return random(max * 2) - max + 1 || -max;
+}
