@@ -6,6 +6,8 @@ import Game from "./game/Game";
 import GameOnlineLobby from "./game/GameOnlineLobby";
 import uuid from "uuid";
 
+// smth smth
+
 Vue.use(VueRouter);
 Vue.use(VueSession, {
   persist: true
