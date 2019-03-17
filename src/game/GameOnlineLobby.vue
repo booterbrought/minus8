@@ -18,6 +18,7 @@ let waitingStates = {
   ACCEPTED: 5,
   GAME_CREATED: 3,
   CANCELED: 100
+  // test
 };
 
 export default {
