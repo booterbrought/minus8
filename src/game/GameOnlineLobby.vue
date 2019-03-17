@@ -112,7 +112,7 @@ export default {
         case waitingStates.OPP_FOUND:
           return "Opponent found!";
         case waitingStates.ACCEPTED:
-          return "Waiting...";
+          return "Waiting for accept...";
         default:
           return "Waiting for opponent...";
       }
